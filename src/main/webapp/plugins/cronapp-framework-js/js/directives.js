@@ -24,6 +24,18 @@
         public: true
       }
     }
+  
+  app.common = {
+      generateId: function() {
+        var numbersOnly = '0123456789';
+        var result = Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+        if (numbersOnly.indexOf(result.substr(0,1)) > -1)
+          return this.generateId();
+        return result;
+      }
+  }
 
     if (perm) {
       var perms = perm.toLowerCase().trim().split(",");
@@ -343,7 +355,7 @@
               var value = modelValue || viewValue;
               var fieldValid = validator[attrs.valid].isValid(value);
               if (!fieldValid) {
-                element[0].setCustomValidity(element[0].dataset['errorMessage']);
+                element.scope().$applyAsync(function(){ element[0].setCustomValidity(element[0].dataset['errorMessage']); }) ;
               } else {
                 element[0].setCustomValidity("");
               }
@@ -387,6 +399,119 @@
           }
         }
       })
+	  
+	.directive('qr', ['$window', function($window){
+    return {
+      restrict: 'A',
+      require: '^ngModel',
+      template: '<canvas ng-hide="image"></canvas><img ng-if="image" ng-src="{{canvasImage}}"/>',
+      link: function postlink(scope, element, attrs, ngModel){
+        if (scope.size === undefined  && attrs.size) {
+          scope.text = attrs.size;
+        }
+      var getTypeNumeber = function(){
+      return scope.typeNumber || 0;
+    };
+    var getCorrection = function(){
+      var levels = {
+        'L': 1,
+        'M': 0,
+        'Q': 3,
+        'H': 2
+      };
+    var correctionLevel = scope.correctionLevel || 0;
+      return levels[correctionLevel] || 0;
+    };
+    var getText = function(){
+      return ngModel.$modelValue || "";
+    };
+    var getSize = function(){
+      return scope.size || $(element).outerWidth();
+    };
+    var isNUMBER = function(text){
+      var ALLOWEDCHARS = /^[0-9]*$/;
+      return ALLOWEDCHARS.test(text);
+    };
+    var isALPHA_NUM = function(text){
+      var ALLOWEDCHARS = /^[0-9A-Z $%*+\-./:]*$/;
+      return ALLOWEDCHARS.test(text);
+    };
+    var is8bit = function(text){
+      for (var i = 0; i < text.length; i++) {
+        var code = text.charCodeAt(i);
+        if (code > 255) {
+          return false;
+        }
+      }
+      return true;
+    };
+    var checkInputMode = function(inputMode, text){
+      if (inputMode === 'NUMBER' && !isNUMBER(text)) {
+        throw new Error('The `NUMBER` input mode is invalid for text.');
+      }
+      else if (inputMode === 'ALPHA_NUM' && !isALPHA_NUM(text)) {
+        throw new Error('The `ALPHA_NUM` input mode is invalid for text.');
+      }
+      else if (inputMode === '8bit' && !is8bit(text)) {
+        throw new Error('The `8bit` input mode is invalid for text.');
+      }
+      else if (!is8bit(text)) {
+        throw new Error('Input mode is invalid for text.');
+      }
+      return true;
+    };
+    var getInputMode = function(text){
+      var inputMode = scope.inputMode;
+      inputMode = inputMode || (isNUMBER(text) ? 'NUMBER' : undefined);
+      inputMode = inputMode || (isALPHA_NUM(text) ? 'ALPHA_NUM' : undefined);
+      inputMode = inputMode || (is8bit(text) ? '8bit' : '');
+      return checkInputMode(inputMode, text) ? inputMode : '';
+    };
+    var canvas = element.find('canvas')[0];
+    var canvas2D = !!$window.CanvasRenderingContext2D;
+    scope.TYPE_NUMBER = getTypeNumeber();
+    scope.TEXT = getText();
+    scope.CORRECTION = getCorrection();
+    scope.SIZE = getSize();
+    scope.INPUT_MODE = getInputMode(scope.TEXT);
+    scope.canvasImage = '';
+    var draw = function(context, qr, modules, tile){
+      for (var row = 0; row < modules; row++) {
+        for (var col = 0; col < modules; col++) {
+          var w = (Math.ceil((col + 1) * tile) - Math.floor(col * tile)),
+              h = (Math.ceil((row + 1) * tile) - Math.floor(row * tile));
+          context.fillStyle = qr.isDark(row, col) ? '#000' : '#fff';
+          context.fillRect(Math.round(col * tile), Math.round(row * tile), w, h);
+        }
+      }
+    };
+    var render = function(canvas, value, typeNumber, correction, size, inputMode){
+      var trim = /^\s+|\s+$/g;
+      var text = value.replace(trim, '');
+      var qr = new QRCode(typeNumber, correction, inputMode);
+      qr.addData(text);
+      qr.make();
+      var context = canvas.getContext('2d');
+      var modules = qr.getModuleCount();
+      var tile = size / modules;
+      canvas.width = canvas.height = size;
+      if (canvas2D) {
+        draw(context, qr, modules, tile);
+        scope.canvasImage = canvas.toDataURL() || '';
+      }
+    };
+    
+    scope.$watch(function(){return ngModel.$modelValue}, function(value, old){
+    if (value !== old) {
+      scope.text = ngModel.$modelValue;
+      scope.TEXT = getText();
+      scope.INPUT_MODE = getInputMode(scope.TEXT);
+      render(canvas, scope.TEXT, scope.TYPE_NUMBER, scope.CORRECTION, scope.SIZE, scope.INPUT_MODE);
+    }
+  });
+    render(canvas, scope.TEXT, scope.TYPE_NUMBER, scope.CORRECTION, scope.SIZE, scope.INPUT_MODE);
+    }};
+  }])
 
       .directive('uiSelect', function ($compile) {
         return {
@@ -630,6 +755,73 @@
               this.buttonBehavior(scope, element, attrs, ngModelCtrl, $element, typeElement, operator, autopost);
           }
         }
+      })
+      .directive('cronRichEditor', function ($compile) {
+        return {
+          restrict: 'E',
+          replace: true,
+          require: 'ngModel',
+          parseToTinyMCEOptions: function(optionsSelected) {
+
+            var toolbarGroup = {};
+            toolbarGroup["allowFullScreen"] = "fullscreen |";
+            toolbarGroup["allowPage"] = "fullpage newdocument code pagebreak |";
+            toolbarGroup["allowPrint"] = "preview print |";
+            toolbarGroup["allowTransferArea"] = "cut copy paste |";
+            toolbarGroup["allowDoUndo"] = "undo redo |";
+            toolbarGroup["allowSymbol"] = "charmap |";
+            toolbarGroup["allowEmbeddedImage"] = "bdesk_photo |";
+            toolbarGroup["allowFont"] = "formatselect fontselect fontsizeselect strikethrough bold italic underline removeformat |";
+            toolbarGroup["allowLinks"] = "link unlink anchor |";
+            toolbarGroup["allowParagraph"] = "alignleft aligncenter alignright alignjustify numlist bullist outdent indent blockquote hr |";
+            toolbarGroup["allowFormulas"] = "tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry tiny_mce_wiris_CAS |";
+
+
+            var tinyMCEOptions = {
+              menubar: false,
+              statusbar: false,
+              plugins: "bdesk_photo advlist anchor autolink autoresize autosave charmap code colorpicker contextmenu directionality emoticons fullpage fullscreen hr image imagetools importcss insertdatetime legacyoutput link lists media nonbreaking noneditable pagebreak paste preview print save searchreplace tabfocus table template toc visualblocks visualchars wordcount tiny_mce_wiris",
+              toolbar: "",
+              content_style: ""
+            };
+
+            for (var key in optionsSelected) {
+              if (key.startsWith("allow")) {
+                if (optionsSelected[key])
+                  tinyMCEOptions.toolbar += " " + toolbarGroup[key];
+              }
+            }
+            tinyMCEOptions.menubar = optionsSelected.showMenuBar;
+            tinyMCEOptions.statusbar = optionsSelected.showStatusBar;
+            tinyMCEOptions.content_style = optionsSelected.contentStyle;
+
+            return JSON.stringify(tinyMCEOptions);
+          },
+          link: function (scope, element, attrs, ngModelCtrl) {
+
+            var optionsSelected = JSON.parse(attrs.options);
+            var tinyMCEOptions = this.parseToTinyMCEOptions(optionsSelected);
+
+            var templateDyn    = '\
+                  <textarea \
+                    ui-tinymce="$options$" \
+                    ng-model="$ngModel$" \
+                    id="$id$"> \
+                  </textarea> \
+                ';
+            templateDyn = $(templateDyn
+                .split('$ngModel$').join(attrs.ngModel)
+                .split('$id$').join(attrs.id || app.common.generateId())
+                .split('$options$').join(escape(tinyMCEOptions))
+            );
+
+            var x = angular.element(templateDyn);
+            element.html('');
+            element.append(x);
+            element.attr('id' , null);
+            $compile(x)(scope);
+          }
+        };
       })
 }(app));
 

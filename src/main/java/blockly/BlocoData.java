@@ -12,10 +12,11 @@ public class BlocoData {
 
 	/**
 	 *
+	 * @param ValorCampo
 	 * @return Var
 	 */
 	// BlocoData
-	public static Var ExecData() throws Exception {
+	public static Var ExecData(Var ValorCampo) throws Exception {
 		return new Callable<Var>() {
 
 			private Var item = Var.VAR_NULL;
@@ -23,9 +24,7 @@ public class BlocoData {
 			private Var Basemudada = Var.VAR_NULL;
 
 			public Var call() throws Exception {
-				item = cronapi.conversion.Operations.stringToDate(
-						cronapi.conversion.Operations
-								.toString(cronapi.screen.Operations.getValueOfField(Var.valueOf("vars.input3380"))),
+				item = cronapi.conversion.Operations.stringToDate(cronapi.conversion.Operations.toString(ValorCampo),
 						Var.valueOf("dd/MM/yyyy"));
 				dataBanc = cronapi.database.Operations.query(Var.valueOf("app.entity.Controle_datas"),
 						Var.valueOf("select c.inf_data from Controle_datas c"));

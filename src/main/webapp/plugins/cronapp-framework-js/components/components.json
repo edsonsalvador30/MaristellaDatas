@@ -175,7 +175,6 @@
     },
     {
       "name": "crn-icon",
-      "displayName": "icon",
       "text": "Icon",
       "class": "adjust-icon mdi mdi-star",
       "template": "<i class=\"fa fa-star\"/>",
@@ -270,6 +269,7 @@
     {
       "name": "crn-datasource",
       "wrapper": false,
+	  "autoWrapper": true,
       "text_pt_BR": "Fonte de dados",
       "text_en_US": "Datasource",
       "class": "adjust-icon mdi mdi-table-large",
@@ -690,7 +690,6 @@
       "text_pt_BR": "Grade vertical",
       "text_en_US": "Vertical Grid",
       "wrapper": false,
-      "autoWrapper": true,
       "class": "adjust-icon mdi mdi-drag-vertical",
       "template": "<div class=\"crn-layout-container\"><div class=\"row\"><div data-container=\"true\" data-replace=\"true\">Content goes here</div></div><div class=\"row\"><div data-container=\"true\" data-replace=\"true\">Content goes here</div></div></div>",
       "handleRules": {
@@ -710,7 +709,6 @@
       "text_pt_BR": "Grade horizontal",
       "text_en_US": "Horizontal Grid",
       "wrapper": false,
-      "autoWrapper": true,
       "class": "adjust-icon mdi mdi-drag-horizontal",
       "template": "<div class=\"row\">\r\n        <div class=\"column col-xs-6\" data-container=\"true\" data-replace=\"true\">Content goes here</div>\r\n        <div class=\"column col-xs-6\" data-container=\"true\" data-replace=\"true\">Content goes here</div>\r\n      </div>",
       "handleRules": {
@@ -1146,9 +1144,6 @@
           "onDisplay": "javascript:function() { return arguments[0].replace('vars.',''); }"
         }
       },
-      "type": {
-        "displayName": "Type"
-      },
       "attributesForPreview": [
         {
           "name": "xattr-fullsize",
@@ -1262,84 +1257,6 @@
           }
         ]
       }
-    },
-    {
-      "name": "crn-chart-bar",
-      "text_pt_BR": "Barra de gráfico",
-      "text_en_US": "Chart Bar",
-      "class": "adjust-icon mdi mdi-chart-bar",
-      "templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/chart-bar.template.html",
-      "wrapper":false
-    },
-    {
-		"name": "crn-chart-doughnut",
-		"text_pt_BR": "Gráfico Donut",
-		"text_en_US": "Chart Doughnut",
-		"class": "adjust-icon mdi mdi-chart-arc",
-		"templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/chart-doughnut.template.html",
-		"properties": {
-			"chart-data": {
-				"target": "canvas",
-				"type": "pageDatasource",
-				"onSave": "javascript:function() { var result = arguments[0]; if (result.length > 0) result = result+'.columns[0]'; return result; }",
-				"onDisplay": "javascript:function() { return arguments[0].replace('.columns[0]',''); }"
-			},
-			"chart-labels": {
-				"target": "canvas",
-				"type": "pageDatasource",
-				"onSave": "javascript:function() { var result = arguments[0]; if (result.length > 0) result = result+'.columns[1]'; return result; }",
-				"onDisplay": "javascript:function() { return arguments[0].replace('.columns[1]',''); }"
-			}
-		},
-		"groupedChildren": [
-			{
-				"text_pt_BR": "Gráfico",
-				"text_en_US": "Chart",
-				"selector": "canvas"
-			}
-		]		
-    },
-    {
-      "name": "crn-chart-line",
-      "text_pt_BR": "Gráfico em linhas",
-      "text_en_US": "Chart Line",
-      "class": "adjust-icon mdi mdi-chart-line",
-      "templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/chart-line.template.html",
-      "wrapper":false
-    },
-    {
-      "name": "crn-chart-pie",
-      "text_pt_BR": "Gráfico de torta",
-      "text_en_US": "Chart Pie",
-      "class": "adjust-icon mdi mdi-chart-pie",
-      "templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/chart-pie.template.html",
-      "wrapper":false
-    },
-    {
-      "name": "crn-chart-polar-area",
-      "text_pt_BR": "Gráfico de area polar",
-      "text_en_US": "Chart Polar Area",
-      "class": "adjust-icon mdi mdi-chart-scatterplot-hexbin",
-      "templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/chart-polar-area.template.html",
-      "wrapper":false
-    },
-    {
-      "name": "crn-chart-radar",
-      "text_pt_BR": "Gráfico em radar",
-      "text_en_US": "Chart Radar",
-      "class": "adjust-icon mdi mdi-speedometer",
-      "templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/chart-radar.template.html",
-      "wrapper":false
-    },
-    {
-      "name": "crn-chart-gauge",
-      "text_pt_BR": "Gráfico de indicador",
-      "text_en_US": "Chart Gauge",
-      "class": "adjust-icon mdi mdi-gauge",
-      "templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/chart-gauge.template.html",
-      "wrapper":false,
-      "autoWrapper": true,
-      "forcedGroup":true
     },
     {
       "name": "crn-title",
@@ -1531,9 +1448,6 @@
       "rows": {
         "displayName": "rows"
       },
-      "rezise": {
-        "displayName": "resize"
-      },
       "groupedChildren": [
         {
           "text_pt_BR": "Rótulo",
@@ -1579,9 +1493,6 @@
 			"class": "adjust-icon mdi mdi-label-outline",
 			"templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/textinputbutton.template.html",
 			"forcedGroupd": true,
-			"type": {
-				"displayName": "Type"
-			},
 			"properties":{
 			"ng-model": {
 				"onSave": "javascript:function() { var result = arguments[0]; if (result.indexOf('.') == -1 && result.trim().length > 0 ) { result = 'vars.'+result;  }  return result; }",
@@ -1628,6 +1539,134 @@
           "selector": "textarea"
         }
       ]
-	}
+	},
+	{
+		"name": "crn-QRCode",
+		"text_pt_BR": "Código QR",
+		"text_en_US": "QR Code",
+		"class": "adjust-icon mdi mdi-qrcode",
+		"wrapper": false,
+		"template": "<div qr=\"true\" ng-model=\"vars.QR${RANDOM}\" ><div> </div> </div>",
+		"properties": {
+			"ng-model": {
+				"onSave": "javascript:function() { var result = arguments[0]; if (result.indexOf('.') == -1 && result.trim().length > 0 ) { result = 'vars.'+result;  }  return result; }",
+				"onDisplay": "javascript:function() { return arguments[0].replace('vars.',''); }"
+			},
+			"qr": {
+				"removable": false,
+				"displayName": "QR Code"
+			}
+		},
+		"classForPreview": {
+			"targetSelector": "div:parent",
+			"condition": [
+				{
+					"name": "qr",
+					"value": "true",
+					"class": "qrCodeCronapp"
+				},
+				{
+					"name": "qr",
+					"value": "false",
+					"class": "qrCodeCronapp"
+				}
+			]
+		}
+	},
+	{
+		"name": "crn-chart",
+		"text_pt_BR": "Gráfico",
+		"text_en_US": "Chart",
+		"class": "adjust-icon mdi mdi-chart-bar",
+		"wrapper": false,
+		"template": "<div> <canvas id=\"chart${RANDOM}\" data-component=\"crn-chart\" class=\"col-xs-12\"></canvas></div>",
+		"classForPreview": {
+			"targetSelector": "canvas",
+			"condition": [
+				{
+					"name": "data-component",
+					"value": "crn-chart",
+					"class": "chart chart-line"
+				}
+			]
+		}
+	},
+	{
+		"name": "crn-panel",
+		"text_pt_BR": "Painel",
+		"text_en_US": "Panel",
+		"class": "adjust-icon mdi mdi-file-presentation-box",
+		"templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/panel.template.html",
+		"properties": {
+			"xattr-theme": {
+				"displayName": "Theme"
+			}
+		},
+		"attributesForPreview": [
+			{
+				"name": "xattr-theme",
+				"type": "options",
+				"target": "class",
+				"values": [
+					{
+						"key": "panel-default",
+						"value": "Default"
+					},
+					{
+						"key": "panel-primary",
+						"value": "Primary"
+					},
+					{
+						"key": "panel-success",
+						"value": "Success"
+					},
+					{
+						"key": "panel-info",
+						"value": "Info"
+					},
+					{
+						"key": "panel-warning",
+						"value": "Warning"
+					},
+					{
+						"key": "panel-danger",
+						"value": "Danger"
+					},
+					{
+						"key": "panel-link",
+						"value": "Link"
+					}
+				]
+			}
+		]
+	},
+	{
+	"name": "crn-header",
+	"text_pt_BR": "Cabeçalho",
+	"text_en_US": "Header",
+	"class": "adjust-icon mdi mdi-page-layout-header",
+	"template": "<div class=\"page-header\"><h1 class=\"component-holder text-left\" xattr-position=\"text-left\" data-component=\"crn-title\" id=\"crn-title${RANDOM}\">Header</h1></div>",
+	"wrapper":false
+	},
+	{
+      "name": "crn-cron-rich-editor",
+      "text_pt_BR": "Editor de Texto Rico",
+      "text_en_US": "Rich Editor",
+      "class": "adjust-icon mdi mdi-text-shadow",
+      "templateURL": "src/main/webapp/plugins/cronapp-framework-js/dist/components/templates/cron-rich-editor.template.html",
+      "properties": {
+        "ng-model": {
+          "onSave": "javascript:function() { var result = arguments[0]; if (result.indexOf('.') == -1 && result.trim().length > 0 ) { result = 'vars.'+result;  }  return result; }",
+          "onDisplay": "javascript:function() { return arguments[0].replace('vars.',''); }"
+        }
+      },
+      "groupedChildren": [
+        {
+          "text_pt_BR": "Campo",
+          "text_en_US": "Field",
+          "selector": "cron-rich-editor"
+        }
+      ]
+  }
   ]
 }
